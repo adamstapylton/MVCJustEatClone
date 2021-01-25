@@ -1,0 +1,36 @@
+﻿@model Restaurant
+
+<li class="list-group-item restaurant-list-item">
+    <div class="card">
+        <div class="card-body restaurant-list-item-body">
+            <div class="row">
+                <div class="col-2">
+                    <div class="restaurant-images">
+                        <div class="restaurant-first-image-container">
+                            <img class="restaurant-first-image" src="@Model.PrimaryImageUrl" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5 pt-2">
+                    <h6>@Model.RestaurantName</h6>
+                    <div>
+                        @for (int i = 0; i < Model.Rating; i++)
+                        {
+                            <i class="fa fa-star text-primary" aria-hidden="true"></i>
+                        }
+                    </div>
+                    <p>
+                        @foreach (var category in Model.Categories)
+                        {
+                            @category.CategoryName
+                        } -
+                </p>
+            </div>
+            <div class="col-5 pt-2">
+                <a asp-controller="Restaurant" asp-action="Menu" asp-route-id="@Model.RestaurantId">Go To Restaurant</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+</li>

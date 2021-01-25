@@ -1,0 +1,59 @@
+﻿@model HomeViewModel 
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+        <p>Popular cuisines</p>
+</div>
+<div class="row">
+    @foreach (var category in Model.Categories)
+    {
+        <div class="col-sm">
+            <button class="top-category-filter-button">
+                <img class="top-category-filter-image" {" src="@category.ImageUrl" alt="@category.CategoryName"/>
+                <div class="top-category-filter-name">@category.CategoryName</div>
+            </button>
+        </div>
+    }
+</div>
+<div class="row">
+    <div class="col-sm-4">
+
+    </div>
+    <div class="col-sm-8 mt-2">
+        <form asp-action="SearchRestaurants"  method="post">
+            <div id="searchBoxContainer">
+                
+                <div class="input-group">
+                    <i class="fas fa-search mt-3 mr-3"></i>
+                    <input id="searchInput" class="form-control" asp-for="Search" placeholder="Search for a restaurant" />
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </div>
+            <span class="text-danger" asp-validation-for="Search"></span>
+        </form>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-sm-4">
+
+    </div>
+    <div class="col-sm-8">
+        @if (Model.SearchUsed)
+        {
+            <div class="row">
+                <h5 class="px-4">@Model.Restaurants.Count() matching restaurants for "@Model.Search" <a asp-action="Index">Clear Search</a></h5> 
+            </div>
+        }
+        <ul id="restaurantList" class="list-group">
+            @foreach (var restaurant in Model.Restaurants)
+            {
+                <partial name="_RestaurantListItem" model="@restaurant"/>
+            }
+        </ul>
+    </div>
+</div>

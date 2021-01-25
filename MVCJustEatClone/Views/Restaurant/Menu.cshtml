@@ -1,0 +1,86 @@
+﻿@model RestaurantViewModel
+
+@{
+    ViewData["Title"] = "Restuarant";
+}
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">@Model.Restaurant.RestaurantName</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-2">
+        <ul class="list-group">
+            @foreach (var category in Model.MenuCategories)
+            {
+                <li class="list-group-item">@category.MenuCategoryName</li>
+            }
+        </ul>
+    </div>
+    <div class="col-sm-6">
+        @foreach (var menuCategory in Model.MenuCategories)
+        {
+            <h4 class="mb-3">@menuCategory.MenuCategoryName</h4>
+
+            @foreach (var dishItem in Model.DishItems.Where(d => d.Dish.Category.MenuCategoryId == menuCategory.MenuCategoryId))
+            {
+                <partial name="_DishListItem" model="@dishItem" />
+
+            }
+
+        }
+    </div>
+    <div class="col-sm-4">
+        <div class="card bg-secondary text-white mb-2">
+            <div class="card-header">
+                Order Summary
+            </div>
+            <div class="card-body">
+                @if (Model.Order == null || Model.Order.OrderItems.Count() == 0)
+                {
+                    <span>There are no items in your order.</span>
+                }
+                else
+                {
+                    <partial name="_OrderSummary" model="@Model.Order" />
+                }
+            </div>
+        </div>
+        @if (Model.Order != null && Model.Order.OrderItems.Count() > 0)
+        {
+            <div>
+                <a class="btn btn-primary" asp-controller="order" asp-action="checkout" asp-route-orderId="@Model.Order.OrderId">Proceed to Checkout</a>
+            </div>
+        }
+
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+
+
+    $('.item-quantity-input').change(function CheckQuantity() {
+        var quantity = $(this).val();
+        var button = $(this).closest('form').find('.add-to-order-button');
+        if (quantity == 0 || quantity == null) {
+            $(button).prop('disabled', 'true');
+        } else {
+            $(button).removeAttr('disabled');
+        }
+    });
+
+    $('.item-quantity-input').keyup(function CheckQuantity() {
+        var quantity = $(this).val();
+        var button = $(this).closest('form').find('.add-to-order-button');
+        if (quantity == 0 || quantity == null) {
+            $(button).prop('disabled', 'true');
+        } else {
+            $(button).removeAttr('disabled');
+        }
+    });
+
+</script>
+}

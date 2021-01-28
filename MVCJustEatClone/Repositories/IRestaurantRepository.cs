@@ -15,6 +15,7 @@ namespace MVCJustEatClone.Repositories
         IEnumerable<Dish> GetMenuByRestaurantId(int id);
         Task<IEnumerable<Category>> GetRestarauntCategoriesAsync(int id);
         Task<IEnumerable<MenuCategory>> GetMenuCategoriesAsync(int id);
+        Task<Dish> GetDishByIdAsync(int dishId);
 
     }
 }

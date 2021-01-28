@@ -83,14 +83,23 @@ namespace MVCJustEatClone.Repositories
             return order;
         }
 
-        public async Task RemoveItemFromOrder(int orderItemId)
+        public async Task<int> RemoveItemFromOrder(int orderId, int orderItemId)
         {
+            var dictionary = new Dictionary<string, object>()
+            {
+                { "@OrderId", orderId },
+                { "@OrderItemId", orderItemId }
+            };
+
+            var parameters = new DynamicParameters(dictionary);
+
             using (var conn = new SqlConnection(Connection))
             {
                 var deleteQuery = $@"DELETE FROM OrderItems 
-                    WHERE OrderItemId = {orderItemId}";
+                    WHERE OrderItemId = @OrderItemId
+                    AND OrderId = @OrderId";
 
-                await conn.ExecuteAsync(deleteQuery);
+                return await conn.ExecuteAsync(deleteQuery, parameters);
 
             }
         }
@@ -112,11 +121,34 @@ namespace MVCJustEatClone.Repositories
         {
             using (var conn = new SqlConnection(Connection))
             {
-                var query = $@"UPDATE OrderItems SET Quantity = {orderItem.Quantity}
+                var query = $@"UPDATE OrderItems 
+                    SET Quantity = {orderItem.Quantity}, Price = {orderItem.Price}
                     WHERE DishId = {orderItem.Dish.DishId}
                     AND OrderId = {orderId};";
                 return await conn.ExecuteAsync(query);
             }
+        }
+
+        public async Task<Order> GetOrderByOrderIdAsync(int orderId)
+        {
+            var order = new Order();
+
+            var dictionary = new Dictionary<string, object>
+            {
+                { "@OrderId", orderId }
+            };
+            var parameters = new DynamicParameters(dictionary);
+
+            using (var conn = new SqlConnection(Connection))
+            {
+                var query = $@"SELECT *
+                    FROM OrderSummary
+                    WHERE OrderId = @OrderId";
+                order =  await conn.QueryFirstAsync<Order>(query, parameters);
+
+            }
+
+            return await GetOrderByRestaurantIdAsync(order.RestaurantId);
         }
     }
 }

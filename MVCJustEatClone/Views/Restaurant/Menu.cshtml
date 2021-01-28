@@ -31,56 +31,22 @@
 
         }
     </div>
-    <div class="col-sm-4">
-        <div class="card bg-secondary text-white mb-2">
-            <div class="card-header">
-                Order Summary
-            </div>
-            <div class="card-body">
-                @if (Model.Order == null || Model.Order.OrderItems.Count() == 0)
-                {
-                    <span>There are no items in your order.</span>
-                }
-                else
-                {
-                    <partial name="_OrderSummary" model="@Model.Order" />
-                }
-            </div>
-        </div>
-        @if (Model.Order != null && Model.Order.OrderItems.Count() > 0)
-        {
-            <div>
-                <a class="btn btn-primary" asp-controller="order" asp-action="checkout" asp-route-orderId="@Model.Order.OrderId">Proceed to Checkout</a>
-            </div>
-        }
+    <div id="orderSummaryContainer" class="col-sm-4">
+        <partial name="_OrderSummary" model="Model.Order"/>
+    </div>
+</div>
 
+<div class="modal fade" id="dishItemModal" tabindex="-1" role="dialog" a>
+    <div class="modal-dialog" role="document">
+        <div id="dishModalContent" class="modal-content">
+
+        </div>
     </div>
 </div>
 
 
 @section Scripts {
-<script>
-
-
-    $('.item-quantity-input').change(function CheckQuantity() {
-        var quantity = $(this).val();
-        var button = $(this).closest('form').find('.add-to-order-button');
-        if (quantity == 0 || quantity == null) {
-            $(button).prop('disabled', 'true');
-        } else {
-            $(button).removeAttr('disabled');
-        }
-    });
-
-    $('.item-quantity-input').keyup(function CheckQuantity() {
-        var quantity = $(this).val();
-        var button = $(this).closest('form').find('.add-to-order-button');
-        if (quantity == 0 || quantity == null) {
-            $(button).prop('disabled', 'true');
-        } else {
-            $(button).removeAttr('disabled');
-        }
-    });
-
-</script>
+<script src="~/js/orderApi.js"></script>
+<script src="~/js/validationScript.js"></script>
+<script src="~/js/PartialViewScript.js"></script>
 }

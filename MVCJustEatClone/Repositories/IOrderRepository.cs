@@ -8,9 +8,10 @@ namespace MVCJustEatClone.Repositories
     public interface IOrderRepository
     {
         Task<int> CreateOrderAsync(Order order);
+        Task<Order> GetOrderByOrderIdAsync(int orderId);
         Task<Order> GetOrderByRestaurantIdAsync(int restaurantId);
         Task<int> AddItemToOrderAsync(OrderItem orderItem, int orderId);
-        Task RemoveItemFromOrder(int orderItemId);
+        Task<int> RemoveItemFromOrder(int orderId, int orderItemId);
         Task<int> GetRestaurantIdByOrderItemId(int orderItemId);
         Task<int> UpdateOrderItem(OrderItem orderItem, int orderId);
 

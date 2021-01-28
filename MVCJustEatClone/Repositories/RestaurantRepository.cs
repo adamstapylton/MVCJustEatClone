@@ -30,7 +30,14 @@ namespace MVCJustEatClone.Repositories
             }
         }
 
-
+        public async Task<Dish> GetDishByIdAsync(int dishId)
+        {
+            using (var conn = new SqlConnection(Connection))
+            {
+                var query = $"SELECT * FROM Dishes WHERE DishId = {dishId}";
+                return await conn.QueryFirstOrDefaultAsync<Dish>(query);
+            }
+        }
 
         public IEnumerable<Dish> GetMenuByRestaurantId(int id)
         {

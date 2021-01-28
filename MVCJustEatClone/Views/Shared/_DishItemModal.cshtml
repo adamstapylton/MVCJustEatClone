@@ -1,0 +1,25 @@
+﻿@model DishItemModel
+
+<div class="modal-header">
+    <h5 class="modal-title">@Model.Dish.DishName</h5>
+    <button type="button" class="close" data-dismiss="modal">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form asp-action="AddToOrder" method="post" >
+        <input asp-for="@Model.Dish.DishId" hidden />
+        <input asp-for="@Model.Dish.DishName" hidden />
+        <input asp-for="@Model.Dish.Price" hidden />
+        <input asp-for="@Model.RestaurantId" hidden />
+        <div class="row">
+            <div class="col">
+                <input asp-for="@Model.Quantity" class="form-control item-quantity-input" />
+            </div>
+            <hr />
+        </div>
+        <div class="row">
+            <button id="addToOrderButton" type="button" class="btn btn-primary">Add To Order</button>
+        </div>
+    </form>
+</div>

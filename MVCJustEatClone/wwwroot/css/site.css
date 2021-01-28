@@ -122,6 +122,10 @@ body {
     object-fit: contain;
 }
 
+.dish-item-card{
+    width: 100%
+}
+
 /* Colours*/
 .btn-primary {
     background-color: #f36d00;

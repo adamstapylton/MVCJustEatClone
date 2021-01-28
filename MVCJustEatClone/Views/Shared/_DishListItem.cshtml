@@ -1,6 +1,6 @@
 ﻿@model DishItemModel
 
-<div class="card mb-2">
+@*<div class="card mb-2">
     <div class="card-body">
         <div class="row">
             <div class="col-6">
@@ -29,4 +29,24 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
+
+<button type="button" class="card mb-2 dish-item-card" data-toggle="modal" data-target="#dishItemModal" data-id="@Model.Dish.DishId">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <div>
+                    <strong>@Model.Dish.DishName</strong>
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="text-primary">
+                    £@String.Format("{0:0.00}", Model.Dish.Price)
+                </div>
+            </div>
+        </div>
+    </div>
+</button>

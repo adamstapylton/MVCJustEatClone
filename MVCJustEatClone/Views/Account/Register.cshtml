@@ -1,0 +1,53 @@
+﻿@model RegisterViewModel
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                Please Log In
+            </div>
+            <div class="card-body">
+                @if (Model.AccountExists)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Unable To Register!</strong> There is already an account with this email address.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+                <form asp-action="Register" method="post">
+                    <input asp-for="@Model.ReturnUrl" hidden />
+                    <div class="form-group">
+                        <label asp-for="@Model.FirstName"></label>
+                        <input class="form-control" asp-for="@Model.FirstName" />
+                        <span asp-validation-for="FirstName"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Surname"></label>
+                        <input class="form-control" asp-for="@Model.Surname" />
+                        <span asp-validation-for="Surname"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Email"></label>
+                        <input class="form-control" asp-for="@Model.Email" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Password"></label>
+                        <input class="form-control" asp-for="@Model.Password" />
+                        <span asp-validation-for="Password"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.PasswordConfirmation"></label>
+                        <input class="form-control" asp-for="@Model.PasswordConfirmation" />
+                        <span asp-validation-for="PasswordConfirmation"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.RememberMe"></label>
+                        <input asp-for="@Model.RememberMe" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>

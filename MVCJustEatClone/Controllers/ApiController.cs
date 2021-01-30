@@ -26,7 +26,7 @@ namespace MVCJustEatClone.Controllers
  
             try
             {
-                var order = await orderRepository.GetOrderByRestaurantIdAsync(dishItem.RestaurantId);
+                var order = await orderRepository.GetOrderByOrderIdAsync(20);
 
                 if (order == null)
                 {

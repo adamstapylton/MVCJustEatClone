@@ -18,7 +18,6 @@
 
 
 function GetOrderSummary(orderId) {
-    console.log('working');
     $.ajax({
         type: 'GET',
         contentType: 'application/json',

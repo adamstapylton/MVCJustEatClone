@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MVCJustEatClone.Extensions;
 using MVCJustEatClone.Models.ViewModels;
 using MVCJustEatClone.Repositories;
 using System;
@@ -23,6 +24,8 @@ namespace MVCJustEatClone.Controllers
 
         public async Task<IActionResult> Checkout(int orderId)
         {
+            var UserId = User.GetUserId();
+
             var order = await orderRepository.GetOrderByOrderIdAsync(orderId);
             var restaurant = await restaurantRepository.GetRestaurantByIdAsync(order.RestaurantId);
 

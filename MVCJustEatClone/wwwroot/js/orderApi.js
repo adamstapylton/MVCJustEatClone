@@ -18,7 +18,9 @@
         data: JSON.stringify(dishItem),
         url: '/Api/order/',
         success: function (data) {
-            console.log(data);
+            var json = $.parseJSON(data);
+            console.log(json);
+            //$.session.set("OrderId", data);
             GetOrderSummary(data);
         },
         error: function (data) {

@@ -29,6 +29,7 @@ namespace MVCJustEatClone
             services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             services.AddScoped<IDishRepository, DishRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddHttpContextAccessor();
             services.AddSession();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

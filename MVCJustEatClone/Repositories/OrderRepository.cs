@@ -20,11 +20,19 @@ namespace MVCJustEatClone.Repositories
 
         public async Task<int> AddItemToOrderAsync(OrderItem orderItem, int orderId)
         {
+            var parameters = new 
+            {
+                OrderId = orderId,
+                DishId = orderItem.Dish.DishId,
+                Quantity = orderItem.Quantity,
+                Price = orderItem.Price
+            };
+
             using (var conn = new SqlConnection(Connection))
             {
                 var query = $@"INSERT INTO OrderItems (OrderId, DishId, Quantity, Price)
-                    VALUES ({orderId}, {orderItem.Dish.DishId}, {orderItem.Quantity}, {orderItem.Price});";
-                var rows = await conn.ExecuteAsync(query);
+                    VALUES (@OrderId, @DishId, @Quantity, @Price);";
+                var rows = await conn.ExecuteAsync(query, parameters);
                 return rows;
             }
 
@@ -32,66 +40,79 @@ namespace MVCJustEatClone.Repositories
 
         public async Task<int> CreateOrderAsync(Order order)
         {
+            var parameters = new
+            {
+                DateStarted = order.DateStarted.ToString("s") ,
+                RestaurantId = order.RestaurantId
+            };
+
+              
             using (var conn = new SqlConnection(Connection))
             {
-                var query = $@"INSERT INTO OrderSummary (UserId, DateStarted , RestaurantId)
+                var query = $@"INSERT INTO OrderSummary ( DateStarted , RestaurantId)
                     OUTPUT inserted.OrderId
-                    VALUES ('T3ST-1D', '{order.DateStarted.ToString("s")}'  ,{order.RestaurantId})";
-                var result = await conn.ExecuteScalarAsync<int>(query);
+                    VALUES ( '@DateStarted'  ,@RestaurantId)";
+                var result = await conn.ExecuteScalarAsync<int>(query, parameters);
                 return result;
             }
 
         }
 
-        public async Task<Order> GetOrderByRestaurantIdAsync(int restaurantId)
-        {
-            var order = new Order();
-            var orderItems = new List<OrderItem>();
+     //   public async Task<Order> GetOrderByRestaurantIdAsync(int restaurantId)
+     //   {
+     //       var order = new Order();
+     //       var orderItems = new List<OrderItem>();
+     //       var dictionary = new Dictionary<string, int>() 
+     //       {
+     //           { "@RestaurantId", restaurantId},
+     //           { "@OrderId", order.OrderId }
+     //       };
 
-            using (var conn = new SqlConnection(Connection))
-            {
-                var query = $@"SELECT TOP (1) *
-                    FROM OrderSummary
-                    WHERE RestaurantId = {restaurantId}
-					AND DateFinished IS NULL";
-                order = await conn.QueryFirstOrDefaultAsync<Order>(query);
-            }
+     //       var parameters = new DynamicParameters(dictionary);
 
-            if (order == null)
-            {
-                return null;
-            }
+     //       using (var conn = new SqlConnection(Connection))
+     //       {
+     //           var query = $@"SELECT TOP (1) *
+     //               FROM OrderSummary
+     //               WHERE RestaurantId = @RestaurantId
+					//AND DateFinished IS NULL";
+     //           order = await conn.QueryFirstOrDefaultAsync<Order>(query, parameters);
+     //       }
 
-            using (var conn = new SqlConnection(Connection))
-            {
-                var query = $@"SELECT OrderItemId, Quantity, OrderItems.Price, Dishes.DishId, DishName
-                    FROM OrderItems
-                    INNER JOIN Dishes ON OrderItems.DishId = Dishes.DishId
-                    WHERE OrderId = {order.OrderId}";
-                var data = await conn.QueryAsync<OrderItem, Dish, OrderItem>(query,
-                    (orderItem, dish) => {
-                        orderItem.Dish = dish;
-                        return orderItem;
-                    },
-                    splitOn: "DishId");
-                orderItems = data.ToList();
-            }
+     //       if (order == null)
+     //       {
+     //           return null;
+     //       }
 
-            order.OrderItems = orderItems;
-            order.TotalPrice = order.OrderItems.Sum(items => items.Price);
+     //       using (var conn = new SqlConnection(Connection))
+     //       {
+     //           var query = $@"SELECT OrderItemId, Quantity, OrderItems.Price, Dishes.DishId, DishName
+     //               FROM OrderItems
+     //               INNER JOIN Dishes ON OrderItems.DishId = Dishes.DishId
+     //               WHERE OrderId = {order.OrderId}";
+     //           var data = await conn.QueryAsync<OrderItem, Dish, OrderItem>(query,
+     //               (orderItem, dish) => {
+     //                   orderItem.Dish = dish;
+     //                   return orderItem;
+     //               },
+     //               splitOn: "DishId");
+     //           orderItems = data.ToList();
+     //       }
 
-            return order;
-        }
+     //       order.OrderItems = orderItems;
+     //       order.TotalPrice = order.OrderItems.Sum(items => items.Price);
+
+     //       return order;
+     //   }
 
         public async Task<int> RemoveItemFromOrder(int orderId, int orderItemId)
         {
-            var dictionary = new Dictionary<string, object>()
+            var parameters = new
             {
-                { "@OrderId", orderId },
-                { "@OrderItemId", orderItemId }
+                OrderId = orderId ,
+                OrderItemId = orderItemId 
             };
-
-            var parameters = new DynamicParameters(dictionary);
+     
 
             using (var conn = new SqlConnection(Connection))
             {
@@ -106,38 +127,45 @@ namespace MVCJustEatClone.Repositories
 
         public async Task<int> GetRestaurantIdByOrderItemId(int orderItemId)
         {
+            var parameters = new { OrderItemId = orderItemId };
+
             using (var conn = new SqlConnection(Connection))
             {
                 var query = $@"SELECT TOP (1) OrderSummary.RestaurantId
                     FROM OrderItems
                     INNER JOIN OrderSummary ON OrderItems.OrderId = OrderSummary.OrderId
-                    WHERE OrderItems.OrderItemId = {orderItemId}";
+                    WHERE OrderItems.OrderItemId = @OrderItemId";
 
-                return await conn.QuerySingleAsync<int>(query);
+                return await conn.QuerySingleAsync<int>(query, parameters);
             }
         }
 
         public async Task<int> UpdateOrderItem(OrderItem orderItem, int orderId)
         {
+            var parameters = new
+            {
+                Quantity = orderItem.Quantity,
+                Price = orderItem.Price,
+                DishId = orderItem.Dish.DishId,
+                OrderId = orderId
+            };
+
             using (var conn = new SqlConnection(Connection))
             {
                 var query = $@"UPDATE OrderItems 
-                    SET Quantity = {orderItem.Quantity}, Price = {orderItem.Price}
-                    WHERE DishId = {orderItem.Dish.DishId}
-                    AND OrderId = {orderId};";
-                return await conn.ExecuteAsync(query);
+                    SET Quantity = @Quantity, Price = @Price
+                    WHERE DishId = @DishId
+                    AND OrderId = @OrderId;";
+                return await conn.ExecuteAsync(query, parameters);
             }
         }
 
         public async Task<Order> GetOrderByOrderIdAsync(int orderId)
         {
             var order = new Order();
+            var orderItems = new List<OrderItem>();
 
-            var dictionary = new Dictionary<string, object>
-            {
-                { "@OrderId", orderId }
-            };
-            var parameters = new DynamicParameters(dictionary);
+            var parameters = new { OrderId = orderId };
 
             using (var conn = new SqlConnection(Connection))
             {
@@ -148,7 +176,79 @@ namespace MVCJustEatClone.Repositories
 
             }
 
-            return await GetOrderByRestaurantIdAsync(order.RestaurantId);
+            if (order == null)
+            {
+                return null;
+            }
+
+            using (var conn = new SqlConnection(Connection))
+            {
+                var query = $@"SELECT OrderItemId, Quantity, OrderItems.Price, Dishes.DishId, DishName
+                    FROM OrderItems
+                    INNER JOIN Dishes ON OrderItems.DishId = Dishes.DishId
+                    WHERE OrderId = {order.OrderId}";
+                var data = await conn.QueryAsync<OrderItem, Dish, OrderItem>(query, 
+                    (orderItem, dish) => {
+                        orderItem.Dish = dish;
+                        return orderItem;
+                    },
+                    splitOn: "DishId");
+                orderItems = data.ToList();
+            };
+
+            order.OrderItems = orderItems;
+            order.TotalPrice = order.OrderItems.Sum(items => items.Price);
+
+            return order;
+            //return await GetOrderByRestaurantIdAsync(order.RestaurantId);
+        }
+
+        public async Task<Order> GetOrdersByUserIdAndRestaurantId(int userId, int restaurantId)
+        {
+            var order = new Order();
+
+            var parameters = new 
+            { 
+                UserId = userId,
+                RestaurantId = restaurantId
+            };
+
+            using (var conn = new SqlConnection(Connection))
+            {
+                var query = @"  SELECT *
+                  FROM OrderSummary
+                  WHERE UserId = @UserId
+                  AND RestaurantId = @RestaurantId";
+                order = await conn.QueryFirstAsync<Order>(query, parameters);
+            }
+
+            order.OrderItems = await GetOrderItems(order.OrderId);
+
+            return order;
+        }
+
+        public async Task<List<OrderItem>> GetOrderItems(int orderId)
+        {
+            var orderItems = new List<OrderItem>();
+
+           // var parameters = new { OrderId = orderId };
+
+            using (var conn = new SqlConnection(Connection))
+            {
+                var query = $@"SELECT OrderItemId, Quantity, OrderItems.Price, Dishes.DishId, DishName
+                    FROM OrderItems
+                    INNER JOIN Dishes ON OrderItems.DishId = Dishes.DishId
+                    WHERE OrderId = {orderId}";
+                var data = await conn.QueryAsync<OrderItem, Dish, OrderItem>(query,
+                    (orderItem, dish) => {
+                        orderItem.Dish = dish;
+                        return orderItem;
+                    },
+                    splitOn: "DishId");
+                orderItems = data.ToList();
+            };
+
+            return orderItems;
         }
     }
 }

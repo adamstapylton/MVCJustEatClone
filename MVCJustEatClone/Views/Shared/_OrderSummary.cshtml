@@ -5,7 +5,7 @@
             Order Summary
         </div>
         <div class="card-body">
-            @if (Model.OrderItems.Count() > 0 && Model != null)
+            @if (Model.OrderItems.Count() > 0 && Model.OrderItems != null)
             {
                 @foreach (var item in Model.OrderItems)
                 {

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Session;
+using MVCJustEatClone.Extensions;
 
 namespace MVCJustEatClone.Controllers
 {
@@ -15,6 +16,8 @@ namespace MVCJustEatClone.Controllers
         private readonly IRestaurantRepository restaurantRepository;
         private readonly IDishRepository dishRepository;
         private readonly IOrderRepository orderRepository;
+
+        public object Session { get; private set; }
 
         public RestaurantController(IRestaurantRepository restaurantRepository, IDishRepository dishRepository, IOrderRepository orderRepository)
         {
@@ -26,6 +29,8 @@ namespace MVCJustEatClone.Controllers
         public async Task<IActionResult> Menu(int id)
         {
             var restaurant = await restaurantRepository.GetRestaurantByIdAsync(id);
+            var order = new Order();
+            order.OrderItems = new List<OrderItem>();
 
             if (restaurant == null)
             {
@@ -33,8 +38,12 @@ namespace MVCJustEatClone.Controllers
             }
 
             var menuCategories = await restaurantRepository.GetMenuCategoriesAsync(id);
-            
-            var order = await orderRepository.GetOrderByRestaurantIdAsync(id);
+
+            if (User.Claims.Count() > 0)
+            {
+                var userId = User.GetUserId();
+                order = await orderRepository.GetOrdersByUserIdAndRestaurantId(userId, id);
+            }
 
             var viewModel = new RestaurantViewModel()
             {
@@ -52,57 +61,10 @@ namespace MVCJustEatClone.Controllers
             };
 
            
-            return View("Menu", viewModel);
+            return View(viewModel);
         }
 
         
-        //public async Task<RedirectResult> AddToOrder(DishItemModel dishItem)
-        //{
-        //    var order = await orderRepository.GetOrderByRestaurantIdAsync(dishItem.RestaurantId);
-
-        //    if (order == null)
-        //    {
-        //        order = new Order()
-        //        {
-        //            DateStarted = DateTime.Now,
-        //            RestaurantId = dishItem.RestaurantId
-        //        };
-
-        //        order.OrderId = await orderRepository.CreateOrderAsync(order);
-        //    }
-
-        //    var orderItem = new OrderItem()
-        //    {
-        //        Dish = dishItem.Dish,
-        //        Quantity = dishItem.Quantity,
-        //        Price = dishItem.Quantity * dishItem.Dish.Price
-        //    };
-
-        //    // check to see if theres an existing order item and then update it else add a new one
-
-        //    if (order.OrderItems.Where(oi => oi.Dish.DishId == dishItem.Dish.DishId).Count() > 0)
-        //    {
-        //        await orderRepository.UpdateOrderItem(orderItem, order.OrderId);
-        //    }
-        //    else
-        //    {
-        //        await orderRepository.AddItemToOrderAsync(orderItem, order.OrderId);
-        //    }
-            
-
-        //    return Redirect($"/Restaurant/Menu/{dishItem.RestaurantId}");
-
-        //}
-
-        //public async Task<RedirectResult> RemoveItem(int itemId)
-        //{
-        //    var restaurantId = await orderRepository.GetRestaurantIdByOrderItemId(itemId);
-
-        //    await orderRepository.RemoveItemFromOrder(itemId);    
-
-        //     return Redirect($"/Restaurant/Menu/{restaurantId}");
-        //}
-
         public async Task<PartialViewResult> OrderPartialView(int orderId)
         {
             var order = await orderRepository.GetOrderByOrderIdAsync(orderId);
